@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>People OS — TranZact</title>
+<title>TranZact People OS</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0e0f0c;--surface:#1c1a1a;--surface2:#242424;--accent:#da5d37;--accent2:#df7afe;--green:rgb(39,133,137);--text:#eaece5;--muted:#858a8e;--border:rgba(255,255,255,0.08)}
@@ -91,7 +91,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);
 
 <nav class="nav">
   <div class="nav-inner">
-    <div class="nav-brand"><div class="nav-logo">&#9878;</div> People <span>OS</span></div>
+    <div class="nav-brand"><div class="nav-logo">&#9878;</div> Tran<span>Z</span>act People OS</div>
     <div class="nav-links" id="navLinks" style="display:none">
       <a class="nav-link active" href="index.html">Hub</a>
       <a class="nav-link" href="1on1.html">1-on-1</a>
@@ -110,7 +110,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);
 <!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-eyebrow"><span class="dot"></span> People Intelligence Platform</div>
-  <h1>People <span class="hl">OS</span></h1>
+  <h1>Tran<span class="hl">Z</span>act People <span class="hl2">OS</span></h1>
   <div class="login-sub">One platform for all people analytics — performance, engagement, culture & retention intelligence.</div>
   <input type="password" class="login-input" id="passInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
   <button class="login-btn" onclick="doLogin()">Enter People OS <span class="arrow">&rarr;</span></button>
@@ -120,12 +120,32 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);
 <!-- HUB -->
 <div class="hub" id="hub">
   <div class="hub-header">
-    <h2>Welcome to People <span class="hl">OS</span></h2>
+    <h2>Tran<span class="hl">Z</span>act People <span class="hl2">OS</span></h2>
     <div class="hub-sub">Your people intelligence modules — all in one place</div>
   </div>
 
+  <div style="font-size:0.55rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);margin-bottom:12px">Forms & Tools</div>
+  <div class="modules" style="margin-bottom:32px">
+    <!-- 1-on-1 Review Form -->
+    <a class="module-card mc-accent" href="https://harikeshtiwari12.github.io/1on1-review/landing.html#access" target="_blank">
+      <div class="mc-icon mc-icon-accent">&#128221;</div>
+      <div class="mc-title">1-on-1 Review Form <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">Monthly review platform for leaders — rate team members on performance & culture, assign outcomes (Rockstar/WIP/Exit), add feedback & manager notes.</div>
+      <div class="mc-stats"><span class="mc-stat ms-live">Live</span><span class="mc-stat" style="background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)">Monthly</span></div>
+    </a>
+
+    <!-- eNPS Survey Form -->
+    <a class="module-card mc-green" href="https://harikeshtiwari12.github.io/enps-pulse/" target="_blank">
+      <div class="mc-icon mc-icon-green">&#128203;</div>
+      <div class="mc-title">eNPS Pulse Survey Form <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">Anonymous quarterly engagement survey — 35 Likert questions, eNPS & Manager NPS scales, open feedback. Share this link with the team to fill.</div>
+      <div class="mc-stats"><span class="mc-stat ms-live">Live</span><span class="mc-stat" style="background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)">Quarterly</span></div>
+    </a>
+  </div>
+
+  <div style="font-size:0.55rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent2);margin-bottom:12px">Analytics Dashboards</div>
   <div class="modules">
-    <!-- 1-on-1 -->
+    <!-- 1-on-1 Analytics -->
     <a class="module-card mc-accent" href="1on1.html">
       <div class="mc-icon mc-icon-accent">&#128202;</div>
       <div class="mc-title">1-on-1 Review Analytics <span class="mc-arrow">&rarr;</span></div>
@@ -133,11 +153,11 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);
       <div class="mc-stats"><span class="mc-stat ms-live">Live</span><span class="mc-stat" style="background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)">Monthly</span></div>
     </a>
 
-    <!-- eNPS Pulse -->
+    <!-- eNPS Pulse Analytics -->
     <a class="module-card mc-green" href="pulse.html">
       <div class="mc-icon mc-icon-green">&#9878;</div>
-      <div class="mc-title">eNPS Pulse Survey <span class="mc-arrow">&rarr;</span></div>
-      <div class="mc-desc">Employee Net Promoter Score, 35 engagement dimensions, manager NPS, demographic cuts (tenure/role/age/work mode), heatmaps & anonymous feedback.</div>
+      <div class="mc-title">eNPS Pulse Analytics <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">eNPS score, 35 engagement dimensions, manager NPS, demographic cuts (tenure/role/age/work mode), heatmaps & anonymous feedback.</div>
       <div class="mc-stats"><span class="mc-stat ms-live">Live</span><span class="mc-stat" style="background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)">Quarterly</span></div>
     </a>
 
@@ -174,7 +194,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);
     </div>
   </div>
 
-  <div class="hub-footer">People OS &middot; TranZact &middot; Built for the people who build TranZact</div>
+  <div class="hub-footer">TranZact People OS &middot; Built for the people who build TranZact</div>
 </div>
 
 <script>
