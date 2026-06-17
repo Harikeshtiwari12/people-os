@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People OS — TranZact</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0f0c;--surface:#1c1a1a;--surface2:#242424;--accent:#da5d37;--accent2:#df7afe;--green:rgb(39,133,137);--text:#eaece5;--muted:#858a8e;--border:rgba(255,255,255,0.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.glow-top{position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(218,93,55,0.07) 0%,transparent 70%);pointer-events:none;z-index:0}
+.glow-purple{position:fixed;bottom:-200px;right:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(223,122,254,0.04) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;background:rgba(28,26,26,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-size:14px;font-weight:800;color:var(--text);letter-spacing:0.04em;display:flex;align-items:center;gap:10px}
+.nav-brand span{color:var(--accent)}
+.nav-logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.8rem}
+.nav-pill{font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(218,93,55,0.12);border:1px solid rgba(218,93,55,0.3);color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.nav-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+.nav-links{display:flex;gap:6px}
+.nav-link{font-size:0.65rem;font-weight:700;padding:6px 14px;border-radius:20px;color:var(--muted);text-decoration:none;transition:all 0.15s;border:1px solid transparent}
+.nav-link:hover{color:var(--text);border-color:var(--border)}
+.nav-link.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.nav-logout{font-size:0.6rem;font-weight:700;padding:5px 12px;border-radius:20px;color:var(--muted);background:transparent;border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all 0.15s}
+.nav-logout:hover{border-color:rgba(226,75,74,0.4);color:#f87171}
+
+/* Login */
+.login-screen{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:140px 1.5rem 80px;text-align:center}
+.login-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:rgba(218,93,55,0.1);border:1px solid rgba(218,93,55,0.25);padding:6px 16px;border-radius:20px;margin-bottom:1.5rem}
+.login-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+.login-screen h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;line-height:1.1;margin-bottom:8px;color:#fff}
+.login-screen h1 .hl{color:var(--accent)}.login-screen h1 .hl2{color:var(--accent2)}
+.login-sub{font-size:0.8rem;color:var(--muted);margin-bottom:32px;font-weight:500;line-height:1.6}
+.login-input{width:100%;padding:16px;font-family:inherit;font-size:0.9rem;font-weight:600;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px;outline:none;text-align:center;letter-spacing:0.1em;margin-bottom:14px}
+.login-input:focus{border-color:rgba(218,93,55,0.4)}
+.login-btn{width:100%;padding:16px;font-family:inherit;font-size:0.9rem;font-weight:700;border:none;border-radius:12px;cursor:pointer;background:var(--accent);color:#fff;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.03em}
+.login-btn:hover{background:#c44e2b;transform:translateY(-1px);box-shadow:0 8px 32px rgba(218,93,55,0.35)}
+.login-btn .arrow{font-size:20px;transition:transform 0.2s}
+.login-btn:hover .arrow{transform:translateX(4px)}
+.login-error{font-size:0.7rem;color:#f87171;margin-top:10px;display:none}
+
+/* Hub */
+.hub{display:none;position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:90px 2rem 80px}
+.hub-header{text-align:center;margin-bottom:48px}
+.hub-header h2{font-size:clamp(1.4rem,3vw,2rem);font-weight:900;color:#fff;margin-bottom:8px}
+.hub-header h2 .hl{color:var(--accent)}.hub-header h2 .hl2{color:var(--accent2)}
+.hub-sub{font-size:0.8rem;color:var(--muted);font-weight:500}
+
+/* Module cards */
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:48px}
+.module-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;transition:all 0.2s;position:relative;overflow:hidden;text-decoration:none;color:inherit;display:block;cursor:pointer}
+.module-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.2s}
+.module-card:hover{border-color:rgba(218,93,55,0.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.module-card:hover::before{opacity:1}
+.module-card:hover .mc-arrow{transform:translateX(4px);color:var(--accent)}
+.mc-accent::before{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.mc-green::before{background:linear-gradient(90deg,var(--green),#34d399)}
+.mc-blue::before{background:linear-gradient(90deg,#378ADD,#60a5fa)}
+.mc-purple::before{background:linear-gradient(90deg,var(--accent2),#ff9cf5)}
+.mc-yellow::before{background:linear-gradient(90deg,#EF9F27,#fbbf24)}
+
+.mc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:16px}
+.mc-icon-accent{background:rgba(218,93,55,0.12)}
+.mc-icon-green{background:rgba(39,133,137,0.12)}
+.mc-icon-blue{background:rgba(55,138,221,0.12)}
+.mc-icon-purple{background:rgba(223,122,254,0.12)}
+.mc-icon-yellow{background:rgba(239,159,39,0.12)}
+.mc-title{font-size:1rem;font-weight:800;color:#fff;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.mc-arrow{font-size:1.1rem;color:var(--muted);transition:all 0.2s}
+.mc-desc{font-size:0.72rem;color:var(--muted);line-height:1.7;font-weight:500;margin-bottom:14px}
+.mc-stats{display:flex;gap:12px;flex-wrap:wrap}
+.mc-stat{font-size:0.55rem;font-weight:700;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.06em}
+.ms-live{background:rgba(29,158,117,0.1);color:#34d399;border:1px solid rgba(29,158,117,0.2)}
+.ms-coming{background:rgba(239,159,39,0.1);color:#fbbf24;border:1px solid rgba(239,159,39,0.2)}
+
+/* Footer */
+.hub-footer{text-align:center;font-size:0.6rem;color:rgba(255,255,255,0.1);font-weight:600;padding-top:20px;border-top:1px solid var(--border)}
+
+@media(max-width:640px){
+  .hub{padding:76px 1rem 60px}
+  .modules{grid-template-columns:1fr}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand"><div class="nav-logo">&#9878;</div> People <span>OS</span></div>
+    <div class="nav-links" id="navLinks" style="display:none">
+      <a class="nav-link active" href="index.html">Hub</a>
+      <a class="nav-link" href="1on1.html">1-on-1</a>
+      <a class="nav-link" href="pulse.html">Pulse</a>
+    </div>
+    <div>
+      <span class="nav-pill" id="navPill"><span class="dot"></span> People OS</span>
+      <button class="nav-logout" id="logoutBtn" style="display:none" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="glow-top"></div>
+<div class="glow-purple"></div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-eyebrow"><span class="dot"></span> People Intelligence Platform</div>
+  <h1>People <span class="hl">OS</span></h1>
+  <div class="login-sub">One platform for all people analytics — performance, engagement, culture & retention intelligence.</div>
+  <input type="password" class="login-input" id="passInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+  <button class="login-btn" onclick="doLogin()">Enter People OS <span class="arrow">&rarr;</span></button>
+  <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+</div>
+
+<!-- HUB -->
+<div class="hub" id="hub">
+  <div class="hub-header">
+    <h2>Welcome to People <span class="hl">OS</span></h2>
+    <div class="hub-sub">Your people intelligence modules — all in one place</div>
+  </div>
+
+  <div class="modules">
+    <!-- 1-on-1 -->
+    <a class="module-card mc-accent" href="1on1.html">
+      <div class="mc-icon mc-icon-accent">&#128202;</div>
+      <div class="mc-title">1-on-1 Review Analytics <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">Performance & culture scores, outcome tracking (Rockstar/WIP/Exit), team scorecards, leader effectiveness, risk radar & month-over-month trends.</div>
+      <div class="mc-stats"><span class="mc-stat ms-live">Live</span><span class="mc-stat" style="background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)">Monthly</span></div>
+    </a>
+
+    <!-- eNPS Pulse -->
+    <a class="module-card mc-green" href="pulse.html">
+      <div class="mc-icon mc-icon-green">&#9878;</div>
+      <div class="mc-title">eNPS Pulse Survey <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">Employee Net Promoter Score, 35 engagement dimensions, manager NPS, demographic cuts (tenure/role/age/work mode), heatmaps & anonymous feedback.</div>
+      <div class="mc-stats"><span class="mc-stat ms-live">Live</span><span class="mc-stat" style="background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)">Quarterly</span></div>
+    </a>
+
+    <!-- Retention (Coming Soon) -->
+    <div class="module-card mc-blue" style="cursor:default;opacity:0.6">
+      <div class="mc-icon mc-icon-blue">&#128200;</div>
+      <div class="mc-title">Retention Analytics <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">Hiring vs attrition trends, tenure analysis, cost-of-turnover calculator, early warning system for flight risk based on eNPS + 1-on-1 cross-data.</div>
+      <div class="mc-stats"><span class="mc-stat ms-coming">Coming Soon</span></div>
+    </div>
+
+    <!-- Culture Code (Coming Soon) -->
+    <div class="module-card mc-purple" style="cursor:default;opacity:0.6">
+      <div class="mc-icon mc-icon-purple">&#128156;</div>
+      <div class="mc-title">Culture Intelligence <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">Culture code tracking, values alignment scores, culture champions identification, onboarding sentiment & cross-team culture heatmap.</div>
+      <div class="mc-stats"><span class="mc-stat ms-coming">Coming Soon</span></div>
+    </div>
+
+    <!-- AI Upskill (Coming Soon) -->
+    <div class="module-card mc-yellow" style="cursor:default;opacity:0.6">
+      <div class="mc-icon mc-icon-yellow">&#129302;</div>
+      <div class="mc-title">AI Upskill Tracker <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">AI Native Readiness program progress, squad performance, completion rates, skill assessments & presentation readiness dashboard.</div>
+      <div class="mc-stats"><span class="mc-stat ms-coming">Coming Soon</span></div>
+    </div>
+
+    <!-- Comp & Benefits (Coming Soon) -->
+    <div class="module-card mc-accent" style="cursor:default;opacity:0.6">
+      <div class="mc-icon mc-icon-accent">&#128176;</div>
+      <div class="mc-title">Comp & Benefits <span class="mc-arrow">&rarr;</span></div>
+      <div class="mc-desc">Compensation benchmarking, pay equity analysis, benefits utilization, total rewards dashboard & market comparison data.</div>
+      <div class="mc-stats"><span class="mc-stat ms-coming">Coming Soon</span></div>
+    </div>
+  </div>
+
+  <div class="hub-footer">People OS &middot; TranZact &middot; Built for the people who build TranZact</div>
+</div>
+
+<script>
+const PASS='TranZact@PeopleOS';
+
+// Check if already logged in
+if(sessionStorage.getItem('people_os_auth')==='true'){
+  showHub();
+}
+
+function doLogin(){
+  if(document.getElementById('passInput').value===PASS){
+    sessionStorage.setItem('people_os_auth','true');
+    showHub();
+  } else {
+    document.getElementById('loginError').style.display='block';
+  }
+}
+
+function showHub(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('hub').style.display='block';
+  document.getElementById('navLinks').style.display='flex';
+  document.getElementById('logoutBtn').style.display='inline-block';
+  document.getElementById('navPill').style.display='none';
+}
+
+function doLogout(){
+  sessionStorage.removeItem('people_os_auth');
+  location.reload();
+}
+</script>
+</body>
+</html>

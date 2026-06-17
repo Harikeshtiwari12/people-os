@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TranZact Pulse — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0e0f0c;--surface:#1c1a1a;--surface2:#242424;--accent:#da5d37;--accent2:#df7afe;
+  --green:rgb(39,133,137);--text:#eaece5;--muted:#858a8e;--border:rgba(255,255,255,0.08);
+  --red:#E24B4A;--yellow:#EF9F27;--blue:#378ADD;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.glow-top{position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(218,93,55,0.07) 0%,transparent 70%);pointer-events:none;z-index:0}
+.glow-purple{position:fixed;bottom:-200px;right:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(223,122,254,0.04) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+/* Pulse animation */
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* Nav bar — from landing page */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;background:rgba(28,26,26,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-size:13px;font-weight:700;color:var(--text);letter-spacing:0.04em}
+.nav-brand span{color:var(--accent)}
+.nav-pill{font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(218,93,55,0.12);border:1px solid rgba(218,93,55,0.3);color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.nav-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+
+/* Login */
+.login-screen{position:relative;z-index:1;max-width:400px;margin:0 auto;padding:140px 1.5rem 80px;text-align:center}
+.login-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:rgba(218,93,55,0.1);border:1px solid rgba(218,93,55,0.25);padding:6px 16px;border-radius:20px;margin-bottom:1.5rem}
+.login-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+.login-screen h2{font-size:clamp(1.4rem,3vw,1.8rem);font-weight:900;margin-bottom:8px;color:#fff}
+.login-screen h2 .highlight{color:var(--accent)}
+.login-sub{font-size:0.75rem;color:var(--muted);margin-bottom:24px;font-weight:500}
+.login-input{width:100%;padding:14px 16px;font-family:inherit;font-size:0.85rem;font-weight:600;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;outline:none;text-align:center;letter-spacing:0.1em;margin-bottom:12px}
+.login-input:focus{border-color:rgba(218,93,55,0.4)}
+.login-btn{width:100%;padding:14px;font-family:inherit;font-size:0.85rem;font-weight:700;border:none;border-radius:12px;cursor:pointer;background:var(--accent);color:#fff;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.03em}
+.login-btn:hover{background:#c44e2b;transform:translateY(-1px);box-shadow:0 8px 32px rgba(218,93,55,0.35)}
+.login-btn .arrow{font-size:18px;transition:transform 0.2s}
+.login-btn:hover .arrow{transform:translateX(4px)}
+.login-error{font-size:0.7rem;color:var(--red);margin-top:10px;display:none}
+
+/* Dashboard */
+.dashboard{display:none;position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:76px 2rem 80px}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:12px}
+.dash-title{font-size:clamp(1.2rem,3vw,1.6rem);font-weight:900;color:#fff}
+.dash-title .highlight{color:var(--accent)}
+.dash-title .highlight2{color:var(--accent2)}
+.dash-quarter{font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 14px;border-radius:20px;color:var(--accent);border:1px solid rgba(218,93,55,0.25);background:rgba(218,93,55,0.1)}
+.dash-sub{font-size:0.78rem;color:var(--muted);margin-bottom:28px;font-weight:500}
+.filter-label{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px}
+.dash-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.filter-btn{padding:6px 14px;font-family:inherit;font-size:0.62rem;font-weight:700;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all 0.15s}
+.filter-btn:hover{border-color:rgba(218,93,55,0.3);color:var(--text)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Score cards — landing page why-card style */
+.score-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;transition:all 0.2s;position:relative;overflow:hidden}
+.score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity 0.2s}
+.score-card:hover{border-color:rgba(218,93,55,0.3);transform:translateY(-2px)}
+.score-card:hover::before{opacity:1}
+.sc-label{font-size:0.55rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px}
+.sc-value{font-size:2.2rem;font-weight:900;letter-spacing:-0.02em}
+.sc-value.positive{color:#34d399}
+.sc-value.neutral{color:#fbbf24}
+.sc-value.negative{color:#f87171}
+.sc-sub{font-size:0.6rem;color:var(--muted);margin-top:6px;font-weight:600}
+.breakdown-bar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin-top:10px}
+.bb-promoter{background:#1D9E75}.bb-passive{background:#EF9F27}.bb-detractor{background:#E24B4A}
+
+/* Sections — landing page card style */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:20px;overflow:hidden;transition:all 0.2s;position:relative}
+.section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity 0.2s}
+.section:hover{border-color:rgba(218,93,55,0.3)}
+.section:hover::before{opacity:1}
+.section-header{padding:16px 20px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.section-icon{font-size:1rem}
+.section-header span{font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent)}
+.section-body{padding:16px 20px}
+
+/* Team table */
+.team-table{width:100%;border-collapse:collapse}
+.team-table th{font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+.team-table td{font-size:0.78rem;font-weight:600;padding:10px;border-bottom:1px solid var(--border);color:var(--text)}
+.team-table tr:last-child td{border-bottom:none}
+
+/* Pulse bars */
+.pulse-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pulse-row:last-child{border-bottom:none}
+.pulse-label{flex:0 0 240px;font-size:0.72rem;font-weight:600;color:var(--muted)}
+.pulse-bar-wrap{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.pulse-bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+.pulse-avg{flex:0 0 50px;text-align:right;font-size:0.8rem;font-weight:800;color:var(--text)}
+.pulse-group-title{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-top:16px;margin-bottom:6px;padding-top:12px;border-top:1px solid var(--border)}
+.pulse-group-title:first-child{margin-top:0;padding-top:0;border-top:none}
+
+/* Comments */
+.comment{padding:12px 16px;background:var(--surface2);border-radius:10px;margin-bottom:10px;font-size:0.78rem;color:var(--muted);line-height:1.7;border-left:3px solid var(--accent)}
+.comment-meta{font-size:0.55rem;font-weight:700;color:rgba(255,255,255,0.15);margin-top:6px;text-transform:uppercase;letter-spacing:0.06em}
+.comment-category{font-size:0.5rem;font-weight:700;padding:2px 6px;border-radius:3px;margin-right:6px}
+.cat-working{background:rgba(29,158,117,0.12);color:#34d399}
+.cat-change{background:rgba(226,75,74,0.12);color:#f87171}
+.cat-mgr{background:rgba(55,138,221,0.12);color:#60a5fa}
+.cat-culture{background:rgba(223,122,254,0.12);color:var(--accent2)}
+.cat-5yr{background:rgba(239,159,39,0.12);color:#fbbf24}
+
+/* Insights */
+.insight{padding:10px 14px;border-radius:10px;margin-bottom:8px;font-size:0.75rem;font-weight:600;line-height:1.6;display:flex;align-items:flex-start;gap:10px}
+.insight-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.insight-good{background:rgba(29,158,117,0.08);color:#34d399;border:1px solid rgba(29,158,117,0.15)}
+.insight-warn{background:rgba(239,159,39,0.08);color:#fbbf24;border:1px solid rgba(239,159,39,0.15)}
+.insight-bad{background:rgba(226,75,74,0.08);color:#f87171;border:1px solid rgba(226,75,74,0.15)}
+.insight-info{background:rgba(55,138,221,0.08);color:#60a5fa;border:1px solid rgba(55,138,221,0.15)}
+
+/* Heatmap */
+.heatmap-table{width:100%;border-collapse:collapse;font-size:0.65rem}
+.heatmap-table th{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap}
+.heatmap-table th:first-child{text-align:left}
+.heatmap-table td{padding:6px 8px;text-align:center;font-weight:700;border-bottom:1px solid var(--border)}
+.heatmap-table td:first-child{text-align:left;color:var(--text);font-weight:600}
+.heatmap-table tr:last-child td{border-bottom:none}
+.hm-cell{border-radius:4px;padding:4px 6px;display:inline-block;min-width:32px}
+
+/* Top/Bottom */
+.rank-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem}
+.rank-row:last-child{border-bottom:none}
+.rank-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:800;flex-shrink:0}
+.rank-green{background:rgba(29,158,117,0.12);color:#34d399}
+.rank-red{background:rgba(226,75,74,0.12);color:#f87171}
+.rank-label{flex:1;font-weight:600;color:var(--muted)}
+.rank-val{font-weight:800;font-size:0.8rem}
+
+.empty-state{text-align:center;padding:40px 20px;font-size:0.8rem;color:var(--muted)}
+.responses-count{font-size:0.6rem;font-weight:600;color:var(--muted);margin-bottom:16px}
+.loading{text-align:center;padding:60px;font-size:0.8rem;color:var(--muted)}
+
+@media(max-width:640px){
+  .dashboard{padding:24px 1rem 60px}
+  .score-row{grid-template-columns:1fr 1fr}
+  .pulse-label{flex:0 0 150px;font-size:0.65rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav"><div class="nav-inner"><div class="nav-brand" style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.8rem">&#9878;</div>People <span>OS</span></div><div style="display:flex;gap:6px"><a href="index.html" style="font-size:0.65rem;font-weight:700;padding:6px 14px;border-radius:20px;color:var(--muted);text-decoration:none">Hub</a><a href="1on1.html" style="font-size:0.65rem;font-weight:700;padding:6px 14px;border-radius:20px;color:var(--muted);text-decoration:none">1-on-1</a><a href="pulse.html" style="font-size:0.65rem;font-weight:700;padding:6px 14px;border-radius:20px;color:#fff;text-decoration:none;background:var(--accent)">Pulse</a></div><button onclick="sessionStorage.removeItem('people_os_auth');location.href='index.html'" style="font-size:0.6rem;font-weight:700;padding:5px 12px;border-radius:20px;color:var(--muted);background:transparent;border:1px solid var(--border);cursor:pointer;font-family:inherit">Logout</button></div></nav>
+
+<div class="glow-top"></div>
+<div class="glow-purple"></div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-eyebrow"><span class="dot"></span> Restricted Access</div>
+  <h2>Pulse <span class="highlight">Dashboard</span></h2>
+  <div class="login-sub">Leadership & People team only</div>
+  <input type="password" class="login-input" id="passInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+  <button class="login-btn" onclick="doLogin()">Unlock Dashboard <span class="arrow">&rarr;</span></button>
+  <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+
+  <div class="dash-header">
+    <div class="dash-title">Tran<span class="highlight">Z</span>act <span class="highlight2">Pulse</span></div>
+    <div class="dash-quarter" id="dashQuarter"></div>
+  </div>
+  <div class="dash-sub">Employee engagement analytics — quarterly eNPS & pulse dimensions</div>
+
+  <!-- Filter: Department -->
+  <div class="filter-label">Filter by Department</div>
+  <div class="dash-filter" id="filters" data-key="department">
+    <button class="filter-btn active" data-val="All">All Teams</button>
+    <button class="filter-btn" data-val="Sales">Sales</button>
+    <button class="filter-btn" data-val="Customer Experience">CX</button>
+    <button class="filter-btn" data-val="Engineering">Engineering</button>
+    <button class="filter-btn" data-val="Product">Product</button>
+    <button class="filter-btn" data-val="Growth Marketing">Growth</button>
+    <button class="filter-btn" data-val="Channel Partnerships">Channel</button>
+    <button class="filter-btn" data-val="People">People</button>
+    <button class="filter-btn" data-val="Leadership">Leadership</button>
+  </div>
+  <!-- Filter: Tenure -->
+  <div class="filter-label">Filter by Tenure</div>
+  <div class="dash-filter" id="filtersTenure" data-key="tenure">
+    <button class="filter-btn active" data-val="All">All</button>
+    <button class="filter-btn" data-val="0-6 months">0-6m</button>
+    <button class="filter-btn" data-val="6-12 months">6-12m</button>
+    <button class="filter-btn" data-val="1-2 years">1-2y</button>
+    <button class="filter-btn" data-val="2-3 years">2-3y</button>
+    <button class="filter-btn" data-val="3+ years">3y+</button>
+  </div>
+  <!-- Filter: Role Level -->
+  <div class="filter-label">Filter by Role Level</div>
+  <div class="dash-filter" id="filtersRole" data-key="role_level">
+    <button class="filter-btn active" data-val="All">All</button>
+    <button class="filter-btn" data-val="Individual Contributor">IC</button>
+    <button class="filter-btn" data-val="Team Lead">Team Lead</button>
+    <button class="filter-btn" data-val="Manager">Manager</button>
+    <button class="filter-btn" data-val="Head / Director">Head+</button>
+  </div>
+  <!-- Filter: Work Mode -->
+  <div class="filter-label">Filter by Work Mode</div>
+  <div class="dash-filter" id="filtersWork" data-key="work_mode">
+    <button class="filter-btn active" data-val="All">All</button>
+    <button class="filter-btn" data-val="Office">Office</button>
+    <button class="filter-btn" data-val="Remote">Remote</button>
+    <button class="filter-btn" data-val="Hybrid">Hybrid</button>
+  </div>
+
+  <div id="responseCount" class="responses-count"></div>
+
+  <!-- Score Cards -->
+  <div class="score-row">
+    <div class="score-card">
+      <div class="sc-label">eNPS Score</div>
+      <div class="sc-value" id="enpsScore">—</div>
+      <div class="sc-sub" id="enpsSub"></div>
+      <div class="breakdown-bar" id="breakdownBar"></div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">Promoters (9-10)</div>
+      <div class="sc-value positive" id="promoterPct">—</div>
+      <div class="sc-sub" id="promoterCount"></div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">Passives (7-8)</div>
+      <div class="sc-value neutral" id="passivePct">—</div>
+      <div class="sc-sub" id="passiveCount"></div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">Detractors (0-6)</div>
+      <div class="sc-value negative" id="detractorPct">—</div>
+      <div class="sc-sub" id="detractorCount"></div>
+    </div>
+  </div>
+
+  <!-- Manager NPS -->
+  <div class="score-row">
+    <div class="score-card">
+      <div class="sc-label">Manager NPS</div>
+      <div class="sc-value" id="mnpsScore">—</div>
+      <div class="sc-sub">How likely to recommend your manager</div>
+      <div class="breakdown-bar" id="mBreakdownBar"></div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">Avg eNPS Rating</div>
+      <div class="sc-value" id="avgEnps" style="color:var(--text)">—</div>
+      <div class="sc-sub">Out of 10</div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">Avg Manager Rating</div>
+      <div class="sc-value" id="avgMnps" style="color:var(--text)">—</div>
+      <div class="sc-sub">Out of 10</div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">Overall Likert Avg</div>
+      <div class="sc-value" id="avgLikert" style="color:var(--text)">—</div>
+      <div class="sc-sub">Out of 4</div>
+    </div>
+  </div>
+
+  <!-- Key Insights — Auto-generated -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#128161;</span><span>Key Insights & Alerts</span></div>
+    <div class="section-body" id="insightsSection"></div>
+  </div>
+
+  <!-- Team Breakdown -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#128202;</span><span>Team-wise eNPS & Manager NPS</span></div>
+    <div class="section-body">
+      <table class="team-table">
+        <thead><tr><th>Department</th><th>Responses</th><th>eNPS</th><th>Avg eNPS</th><th>Manager NPS</th><th>Avg mNPS</th></tr></thead>
+        <tbody id="teamBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Demographic Cuts: Tenure -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#128197;</span><span>eNPS by Tenure — Retention Risk View</span></div>
+    <div class="section-body">
+      <table class="team-table">
+        <thead><tr><th>Tenure</th><th>Responses</th><th>eNPS</th><th>Avg Score</th><th>Manager NPS</th><th>Burnout Avg</th></tr></thead>
+        <tbody id="tenureBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Demographic Cuts: Role Level -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#128188;</span><span>eNPS by Role Level — Hierarchy View</span></div>
+    <div class="section-body">
+      <table class="team-table">
+        <thead><tr><th>Role Level</th><th>Responses</th><th>eNPS</th><th>Avg Score</th><th>Pride</th><th>Growth</th></tr></thead>
+        <tbody id="roleBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Demographic Cuts: Work Mode -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#127968;</span><span>eNPS by Work Mode</span></div>
+    <div class="section-body">
+      <table class="team-table">
+        <thead><tr><th>Work Mode</th><th>Responses</th><th>eNPS</th><th>Avg Score</th><th>WLB</th><th>Communication</th></tr></thead>
+        <tbody id="workBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Demographic Cuts: Age -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#128100;</span><span>eNPS by Age Group — Generational View</span></div>
+    <div class="section-body">
+      <table class="team-table">
+        <thead><tr><th>Age Group</th><th>Responses</th><th>eNPS</th><th>Avg Score</th><th>Authentic Self</th><th>5yr Vision</th></tr></thead>
+        <tbody id="ageBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Heatmap: Team x Dimension -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#128293;</span><span>Heatmap — Team x Dimension</span></div>
+    <div class="section-body" style="overflow-x:auto" id="heatmapSection"></div>
+  </div>
+
+  <!-- Top 5 / Bottom 5 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="section" style="margin-bottom:0">
+      <div class="section-header"><span class="section-icon">&#128154;</span><span>Top 5 Strengths</span></div>
+      <div class="section-body" id="top5Section"></div>
+    </div>
+    <div class="section" style="margin-bottom:0">
+      <div class="section-header"><span class="section-icon">&#128308;</span><span>Bottom 5 — Action Needed</span></div>
+      <div class="section-body" id="bottom5Section"></div>
+    </div>
+  </div>
+
+  <!-- Pulse Dimensions -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#127919;</span><span>All 35 Dimensions — Detailed Breakdown</span></div>
+    <div class="section-body" id="pulseSection"></div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">&#128172;</span><span>Anonymous Feedback</span></div>
+    <div class="section-body" id="commentsSection"></div>
+  </div>
+
+</div>
+
+<script>
+const ADMIN_PASS='TranZact@PeopleOS';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbyFhaDbyD1NfYUBuV4RCK8fOWm88HMcLhU1gShPuVWniA_Ql-K81jHhSubjA0muQukIWw/exec';
+
+const now=new Date(),q=Math.ceil((now.getMonth()+1)/3),yr=now.getFullYear();
+document.getElementById('dashQuarter').textContent='Q'+q+' '+yr;
+
+function doLogin(){
+  if(document.getElementById('passInput').value===ADMIN_PASS){
+    sessionStorage.setItem('people_os_auth','true');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    loadData();
+  } else {
+    document.getElementById('loginError').style.display='block';
+  }
+}
+
+// Auto-login if already authenticated via People OS hub
+window.addEventListener('DOMContentLoaded',function(){
+  if(sessionStorage.getItem('people_os_auth')==='true'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    loadData();
+  }
+});
+
+let allData=[];
+const filters={department:'All',tenure:'All',role_level:'All',work_mode:'All'};
+
+document.querySelectorAll('.dash-filter').forEach(bar=>{
+  bar.addEventListener('click',function(e){
+    if(!e.target.classList.contains('filter-btn'))return;
+    this.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    filters[this.dataset.key]=e.target.dataset.val;
+    renderDashboard();
+  });
+});
+
+// Field mapping from sheet headers to keys
+// Map all possible header formats to standard keys
+const fieldMap={
+  // Direct matches
+  'timestamp':'timestamp','quarter':'quarter','department':'department',
+  'tenure':'tenure','role_level':'role_level','work_mode':'work_mode','age_group':'age_group',
+  'enps_score':'enps_score','enps_category':'enps_category','enps_reason':'enps_reason','segue_answer':'segue_answer',
+  'mnps_score':'mnps_score','mnps_category':'mnps_category',
+  // From sheet header format (lowercase, special chars replaced with _)
+  'manager_nps':'mnps_score','manager_nps_category':'mnps_category',
+  'mgr_1_1s':'mgr_1on1','mgr_1on1':'mgr_1on1','mgr_feedback':'mgr_feedback',
+  'mgr_values_me':'mgr_values','mgr_values':'mgr_values','mgr_ownership':'mgr_ownership','mgr_fair':'mgr_fair',
+  'align_company':'align_company','align_goals':'align_goals',
+  'voice':'comm_voice','comm_voice':'comm_voice',
+  'transparent_feedback':'comm_transparent','comm_transparent':'comm_transparent',
+  'leaders_communicate':'comm_leaders','comm_leaders':'comm_leaders',
+  'peer_communication':'comm_peers','comm_peers':'comm_peers',
+  'impact_orientation':'impact_orientation','impact_urgency':'impact_urgency',
+  'innovation':'innovation','values_aligned':'values_aligned','collaboration':'collaboration','decision_making':'decision_making',
+  'growth___learning':'growth_learn','growth_learn':'growth_learn','growth__learning':'growth_learn',
+  'rewards_fair':'rewards_fair',
+  'leaders_approachable':'leaders_approachable','leaders_display_values':'leaders_values','leaders_values':'leaders_values',
+  'hiring_culture':'hiring_culture',
+  'work_life_balance':'wlb','wlb':'wlb',
+  'mental_health':'mental_health','diversity_fair':'diversity_fair',
+  'safe___positive':'safe_positive','safe_positive':'safe_positive','safe__positive':'safe_positive',
+  'celebrates':'celebrates','resources':'resources','policies':'policies',
+  'pride':'pride','workload':'workload','authentic_self':'authentic_self',
+  'customer_impact':'customer_impact','tools_tech':'tools_tech','tools___tech':'tools_tech','tools__tech':'tools_tech',
+  'accomplishment':'accomplishment',
+  'what_works_well':'working_well','working_well':'working_well',
+  'what_needs_change':'needs_change','needs_change':'needs_change',
+  'manager_team_feedback':'mgr_team_feedback','mgr_team_feedback':'mgr_team_feedback',
+  'culture_hr_feedback':'culture_hr','culture_hr':'culture_hr',
+  '5_year_vision':'five_year','five_year':'five_year','_5_year_vision':'five_year'
+};
+
+function normalize(row){
+  const out={};
+  for(const key in row){
+    const mapped=fieldMap[key]||key;
+    out[mapped]=row[key];
+  }
+  // Ensure numeric
+  out.enps_score=parseInt(out.enps_score)||0;
+  out.mnps_score=parseInt(out.mnps_score)||0;
+  return out;
+}
+
+function loadData(){
+  document.getElementById('responseCount').textContent='Loading responses...';
+  fetch(SHEET_URL,{redirect:'follow'})
+    .then(r=>{
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    })
+    .then(data=>{
+      // Filter out rows with empty keys or no department
+      allData=data.map(normalize).filter(d=>d.department&&d.department!==''&&d.enps_score>0);
+      if(!allData.length){
+        document.getElementById('responseCount').innerHTML='0 responses. <span style="color:var(--accent)">Clear your Google Sheet completely, then submit a test response to auto-create headers.</span>';
+        return;
+      }
+      renderDashboard();
+    })
+    .catch(err=>{
+      document.getElementById('responseCount').innerHTML='Could not load data. <span style="color:var(--accent)">Check: (1) Apps Script deployed as "New version" (2) Access set to "Anyone"</span>';
+    });
+}
+
+function calcNPS(data,scoreKey){
+  const t=data.length;
+  if(!t)return{score:'—',pPct:0,paPct:0,dPct:0,pCount:0,paCount:0,dCount:0,avg:'—'};
+  const p=data.filter(d=>d[scoreKey]>=9).length;
+  const pa=data.filter(d=>d[scoreKey]>=7&&d[scoreKey]<=8).length;
+  const de=data.filter(d=>d[scoreKey]<=6).length;
+  const pPct=Math.round(p/t*100),dPct=Math.round(de/t*100),paPct=Math.round(pa/t*100);
+  const score=pPct-dPct;
+  const avg=(data.reduce((s,d)=>s+d[scoreKey],0)/t).toFixed(1);
+  return{score,pPct,paPct,dPct,pCount:p,paCount:pa,dCount:de,avg};
+}
+
+function renderDashboard(){
+  let data=allData;
+  Object.keys(filters).forEach(k=>{if(filters[k]!=='All')data=data.filter(d=>d[k]===filters[k]);});
+  const total=data.length;
+  document.getElementById('responseCount').textContent=total+' response'+(total!==1?'s':'')+' collected';
+
+  if(!total){
+    ['enpsScore','promoterPct','passivePct','detractorPct','mnpsScore','avgEnps','avgMnps','avgLikert'].forEach(id=>{document.getElementById(id).textContent='—';});
+    ['enpsSub','promoterCount','passiveCount','detractorCount'].forEach(id=>{document.getElementById(id).textContent='';});
+    ['breakdownBar','mBreakdownBar'].forEach(id=>{document.getElementById(id).innerHTML='';});
+    document.getElementById('teamBody').innerHTML='';
+    document.getElementById('pulseSection').innerHTML='<div class="empty-state">No responses yet. Share the survey link with your team.</div>';
+    document.getElementById('commentsSection').innerHTML='<div class="empty-state">No feedback yet.</div>';
+    return;
+  }
+
+  // eNPS
+  const enps=calcNPS(data,'enps_score');
+  const el=document.getElementById('enpsScore');
+  el.textContent=(enps.score>0?'+':'')+enps.score;
+  el.className='sc-value '+(enps.score>0?'positive':enps.score<0?'negative':'neutral');
+  document.getElementById('enpsSub').textContent='% Promoters - % Detractors';
+  document.getElementById('promoterPct').textContent=enps.pPct+'%';
+  document.getElementById('promoterCount').textContent=enps.pCount+' of '+total;
+  document.getElementById('passivePct').textContent=enps.paPct+'%';
+  document.getElementById('passiveCount').textContent=enps.paCount+' of '+total;
+  document.getElementById('detractorPct').textContent=enps.dPct+'%';
+  document.getElementById('detractorCount').textContent=enps.dCount+' of '+total;
+  document.getElementById('breakdownBar').innerHTML='<div class="bb-promoter" style="width:'+enps.pPct+'%"></div><div class="bb-passive" style="width:'+enps.paPct+'%"></div><div class="bb-detractor" style="width:'+enps.dPct+'%"></div>';
+  document.getElementById('avgEnps').textContent=enps.avg;
+
+  // Manager NPS
+  const mnps=calcNPS(data,'mnps_score');
+  const mel=document.getElementById('mnpsScore');
+  mel.textContent=(mnps.score>0?'+':'')+mnps.score;
+  mel.className='sc-value '+(mnps.score>0?'positive':mnps.score<0?'negative':'neutral');
+  document.getElementById('mBreakdownBar').innerHTML='<div class="bb-promoter" style="width:'+mnps.pPct+'%"></div><div class="bb-passive" style="width:'+mnps.paPct+'%"></div><div class="bb-detractor" style="width:'+mnps.dPct+'%"></div>';
+  document.getElementById('avgMnps').textContent=mnps.avg;
+
+  // Overall Likert avg
+  const likertKeys=['mgr_1on1','mgr_feedback','mgr_values','mgr_ownership','mgr_fair','align_company','align_goals','comm_voice','comm_transparent','comm_leaders','comm_peers','impact_orientation','impact_urgency','innovation','values_aligned','collaboration','decision_making','growth_learn','rewards_fair','leaders_approachable','leaders_values','hiring_culture','wlb','mental_health','diversity_fair','safe_positive','celebrates','resources','policies','pride','workload','authentic_self','customer_impact','tools_tech','accomplishment'];
+  let lSum=0,lCount=0;
+  data.forEach(d=>{likertKeys.forEach(k=>{const v=parseInt(d[k]);if(v){lSum+=v;lCount++;}});});
+  document.getElementById('avgLikert').textContent=lCount?(lSum/lCount).toFixed(2):'—';
+
+  // Helper: avg of a key
+  function dimAvg(arr,key){const vals=arr.map(d=>parseInt(d[key])||0).filter(v=>v>0);return vals.length?(vals.reduce((s,v)=>s+v,0)/vals.length):0;}
+  function fmtAvg(v){return v?v.toFixed(2):'—';}
+  function npsColor(s){return s>0?'#34d399':s<0?'#f87171':'#fbbf24';}
+  function hmColor(v){if(!v)return'transparent';if(v>=3.5)return'rgba(29,158,117,0.25)';if(v>=3)return'rgba(55,138,221,0.2)';if(v>=2.5)return'rgba(239,159,39,0.2)';return'rgba(226,75,74,0.25)';}
+  function hmText(v){if(!v)return'var(--muted)';if(v>=3.5)return'#34d399';if(v>=3)return'#60a5fa';if(v>=2.5)return'#fbbf24';return'#f87171';}
+
+  // ===== KEY INSIGHTS =====
+  let insights=[];
+  if(enps.score>=40)insights.push({type:'good',icon:'🏆',text:'eNPS is <strong>'+enps.score+'</strong> — exceptional! Your team loves working here.'});
+  else if(enps.score>=20)insights.push({type:'good',icon:'✅',text:'eNPS is <strong>+'+enps.score+'</strong> — healthy for a growing org.'});
+  else if(enps.score>=0)insights.push({type:'warn',icon:'⚠️',text:'eNPS is <strong>'+enps.score+'</strong> — neutral zone. Passives need attention.'});
+  else insights.push({type:'bad',icon:'🚨',text:'eNPS is <strong>'+enps.score+'</strong> — negative. Immediate action needed.'});
+
+  if(mnps.score<enps.score-10)insights.push({type:'bad',icon:'📉',text:'Manager NPS (<strong>'+mnps.score+'</strong>) is significantly lower than org eNPS (<strong>'+enps.score+'</strong>). Manager effectiveness is a concern.'});
+  else if(mnps.score>enps.score+10)insights.push({type:'good',icon:'👏',text:'Manager NPS (<strong>+'+mnps.score+'</strong>) is higher than org eNPS — managers are a strength.'});
+
+  const burnoutAvg=dimAvg(data,'workload');
+  if(burnoutAvg&&burnoutAvg<2.5)insights.push({type:'bad',icon:'🔥',text:'Burnout risk is HIGH — workload avg is <strong>'+fmtAvg(burnoutAvg)+'/4</strong>. People are struggling.'});
+  else if(burnoutAvg&&burnoutAvg<3)insights.push({type:'warn',icon:'😓',text:'Workload avg is <strong>'+fmtAvg(burnoutAvg)+'/4</strong> — watch for early burnout signs.'});
+
+  const prideAvg=dimAvg(data,'pride');
+  if(prideAvg>=3.5)insights.push({type:'good',icon:'💪',text:'Pride score is <strong>'+fmtAvg(prideAvg)+'/4</strong> — people are proud to work at TranZact.'});
+  else if(prideAvg&&prideAvg<2.5)insights.push({type:'bad',icon:'😞',text:'Pride score is only <strong>'+fmtAvg(prideAvg)+'/4</strong> — employer brand perception needs work.'});
+
+  const growthAvg=dimAvg(data,'growth_learn');
+  if(growthAvg&&growthAvg<2.5)insights.push({type:'warn',icon:'📚',text:'Growth & Learning avg is <strong>'+fmtAvg(growthAvg)+'/4</strong> — people don\'t see enough development opportunities.'});
+
+  const commAvg=dimAvg(data,'comm_voice');
+  if(commAvg&&commAvg<2.5)insights.push({type:'warn',icon:'🔇',text:'People don\'t feel they have a voice — avg is <strong>'+fmtAvg(commAvg)+'/4</strong>. Communication needs opening up.'});
+
+  if(enps.dPct>=30)insights.push({type:'bad',icon:'🚪',text:'<strong>'+enps.dPct+'%</strong> are detractors — nearly 1 in 3 people. Retention risk is real.'});
+
+  const fiveYearComments=data.filter(d=>d.five_year&&d.five_year!=='—'&&d.five_year.toString().toLowerCase().includes('no')).length;
+  if(fiveYearComments>0)insights.push({type:'info',icon:'📊',text:'<strong>'+fiveYearComments+'</strong> response'+(fiveYearComments>1?'s':'')+' indicate uncertainty about staying 5 years — review "5-Year Vision" comments below.'});
+
+  document.getElementById('insightsSection').innerHTML=insights.length?
+    insights.map(i=>'<div class="insight insight-'+i.type+'"><span class="insight-icon">'+i.icon+'</span><span>'+i.text+'</span></div>').join(''):
+    '<div class="empty-state">Submit more responses to unlock insights</div>';
+
+  // ===== TEAM BREAKDOWN =====
+  if(filters.department==='All'){
+    const depts=[...new Set(allData.map(d=>d.department))].filter(Boolean);
+    let rows='';
+    depts.forEach(dept=>{
+      const dd=allData.filter(d=>d.department===dept);
+      const e=calcNPS(dd,'enps_score');
+      const m=calcNPS(dd,'mnps_score');
+      rows+='<tr><td>'+dept+'</td><td>'+dd.length+'</td><td style="font-weight:800;color:'+npsColor(e.score)+'">'+(e.score>0?'+':'')+e.score+'</td><td>'+e.avg+'/10</td><td style="font-weight:800;color:'+npsColor(m.score)+'">'+(m.score>0?'+':'')+m.score+'</td><td>'+m.avg+'/10</td></tr>';
+    });
+    document.getElementById('teamBody').innerHTML=rows;
+  } else {
+    document.getElementById('teamBody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px">Select "All Teams" for breakdown</td></tr>';
+  }
+
+  // ===== DEMOGRAPHIC BREAKDOWNS =====
+  function renderDemoTable(bodyId,dimKey,extraCols){
+    const vals=[...new Set(data.map(d=>d[dimKey]))].filter(Boolean);
+    if(!vals.length){document.getElementById(bodyId).innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px">No data</td></tr>';return;}
+    let rows='';
+    vals.forEach(v=>{
+      const dd=data.filter(d=>d[dimKey]===v);
+      const e=calcNPS(dd,'enps_score');
+      const m=calcNPS(dd,'mnps_score');
+      let extra=extraCols.map(c=>fmtAvg(dimAvg(dd,c.key))).map(a=>'<td style="color:'+(parseFloat(a)>=3?'#34d399':parseFloat(a)>=2.5?'#fbbf24':'#f87171')+'">'+a+'</td>').join('');
+      rows+='<tr><td>'+v+'</td><td>'+dd.length+'</td><td style="font-weight:800;color:'+npsColor(e.score)+'">'+(e.score>0?'+':'')+e.score+'</td><td>'+e.avg+'/10</td>'+extra+'</tr>';
+    });
+    document.getElementById(bodyId).innerHTML=rows;
+  }
+  renderDemoTable('tenureBody','tenure',[{key:'mnps_score'},{key:'workload'}]);
+  renderDemoTable('roleBody','role_level',[{key:'pride'},{key:'growth_learn'}]);
+  renderDemoTable('workBody','work_mode',[{key:'wlb'},{key:'comm_leaders'}]);
+  renderDemoTable('ageBody','age_group',[{key:'authentic_self'},{key:'five_year'}]);
+
+  // Fix age table — five_year is text not numeric, use pride instead
+  renderDemoTable('ageBody','age_group',[{key:'authentic_self'},{key:'pride'}]);
+
+  // ===== HEATMAP =====
+  const heatDims=[
+    {key:'mgr_1on1',short:'Mgr 1:1'},{key:'mgr_feedback',short:'Mgr FB'},{key:'comm_voice',short:'Voice'},
+    {key:'growth_learn',short:'Growth'},{key:'rewards_fair',short:'Rewards'},{key:'wlb',short:'WLB'},
+    {key:'innovation',short:'Innov'},{key:'pride',short:'Pride'},{key:'workload',short:'Burnout'},
+    {key:'collaboration',short:'Collab'},{key:'tools_tech',short:'Tools'}
+  ];
+  const heatDepts=[...new Set(data.map(d=>d.department))].filter(Boolean);
+  if(heatDepts.length>1){
+    let hHTML='<table class="heatmap-table"><thead><tr><th>Team</th>';
+    heatDims.forEach(d=>{hHTML+='<th>'+d.short+'</th>';});
+    hHTML+='</tr></thead><tbody>';
+    heatDepts.forEach(dept=>{
+      const dd=data.filter(d=>d.department===dept);
+      hHTML+='<tr><td>'+dept+'</td>';
+      heatDims.forEach(dim=>{
+        const avg=dimAvg(dd,dim.key);
+        hHTML+='<td><span class="hm-cell" style="background:'+hmColor(avg)+';color:'+hmText(avg)+'">'+fmtAvg(avg)+'</span></td>';
+      });
+      hHTML+='</tr>';
+    });
+    hHTML+='</tbody></table>';
+    document.getElementById('heatmapSection').innerHTML=hHTML;
+  } else {
+    document.getElementById('heatmapSection').innerHTML='<div class="empty-state">Need responses from 2+ teams for heatmap</div>';
+  }
+
+  // ===== TOP 5 / BOTTOM 5 =====
+  const allDimItems=[];
+  groups.forEach(g=>{g.items.forEach(item=>{
+    const avg=dimAvg(data,item.key);
+    if(avg)allDimItems.push({label:item.label,avg,key:item.key});
+  });});
+  allDimItems.sort((a,b)=>b.avg-a.avg);
+  const top5=allDimItems.slice(0,5);
+  const bottom5=[...allDimItems].sort((a,b)=>a.avg-b.avg).slice(0,5);
+
+  document.getElementById('top5Section').innerHTML=top5.length?top5.map((d,i)=>
+    '<div class="rank-row"><span class="rank-num rank-green">'+(i+1)+'</span><span class="rank-label">'+d.label+'</span><span class="rank-val" style="color:#34d399">'+d.avg.toFixed(2)+'</span></div>'
+  ).join(''):'<div class="empty-state">No data yet</div>';
+
+  document.getElementById('bottom5Section').innerHTML=bottom5.length?bottom5.map((d,i)=>
+    '<div class="rank-row"><span class="rank-num rank-red">'+(i+1)+'</span><span class="rank-label">'+d.label+'</span><span class="rank-val" style="color:#f87171">'+d.avg.toFixed(2)+'</span></div>'
+  ).join(''):'<div class="empty-state">No data yet</div>';
+
+  // Pulse dimensions grouped
+  const groups=[
+    {title:'Manager',color:'var(--accent)',items:[
+      {key:'mgr_1on1',label:'Regular 1:1 conversations'},
+      {key:'mgr_feedback',label:'Actionable development feedback'},
+      {key:'mgr_values',label:'Values my opinions even in disagreement'},
+      {key:'mgr_ownership',label:'Provides ownership, no micromanagement'},
+      {key:'mgr_fair',label:'Fair dealing with team members'}
+    ]},
+    {title:'Alignment & Communication',color:'#60a5fa',items:[
+      {key:'align_company',label:'Clear on company objectives'},
+      {key:'align_goals',label:'Clear on personal goals & contribution'},
+      {key:'comm_voice',label:'I have a voice in the organisation'},
+      {key:'comm_transparent',label:'Comfortable sharing feedback transparently'},
+      {key:'comm_leaders',label:'Leaders communicate news effectively'},
+      {key:'comm_peers',label:'Peer communication is honest & transparent'}
+    ]},
+    {title:'Culture, Impact & Innovation',color:'var(--accent2)',items:[
+      {key:'impact_orientation',label:'Strong impact orientation'},
+      {key:'impact_urgency',label:'Sense of urgency solving problems'},
+      {key:'innovation',label:'Encouraged to try new things, no fear of failure'},
+      {key:'values_aligned',label:'Org values aligned with personal values'},
+      {key:'collaboration',label:'Cross-team collaboration'},
+      {key:'decision_making',label:'Effective decision-making with autonomy'}
+    ]},
+    {title:'Growth, Rewards & Leadership',color:'var(--green)',items:[
+      {key:'growth_learn',label:'Opportunities to learn & develop'},
+      {key:'rewards_fair',label:'Recognized & rewarded fairly'},
+      {key:'leaders_approachable',label:'Easy to approach leadership'},
+      {key:'leaders_values',label:'Leaders display company values'},
+      {key:'hiring_culture',label:'New hires are culturally aligned'}
+    ]},
+    {title:'Wellbeing & Policies',color:'var(--accent)',items:[
+      {key:'wlb',label:'Work-life balance flexibility'},
+      {key:'mental_health',label:'Organization cares about mental health'},
+      {key:'diversity_fair',label:'People from all backgrounds treated fairly'},
+      {key:'safe_positive',label:'I feel safe and positive at work'},
+      {key:'celebrates',label:'Celebrates accomplishments & learnings'},
+      {key:'resources',label:'I have resources to do my job'},
+      {key:'policies',label:'Employee-friendly people policies'}
+    ]},
+    {title:'360 Deep Cuts',color:'#fbbf24',items:[
+      {key:'pride',label:'Proud to tell people I work at TranZact'},
+      {key:'workload',label:'Workload is manageable, not close to burnout'},
+      {key:'authentic_self',label:'Can be my authentic self without judgement'},
+      {key:'customer_impact',label:'I understand how my work impacts customers'},
+      {key:'tools_tech',label:'I have the right tools and technology'},
+      {key:'accomplishment',label:'I feel genuine accomplishment from my work'}
+    ]}
+  ];
+
+  let pulseHTML='';
+  groups.forEach(g=>{
+    pulseHTML+='<div class="pulse-group-title" style="color:'+g.color+'">'+g.title+'</div>';
+    g.items.forEach(item=>{
+      const vals=data.map(d=>parseInt(d[item.key])||0).filter(v=>v>0);
+      const avg=vals.length?(vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(2):'—';
+      const pct=vals.length?((avg/4)*100).toFixed(0):0;
+      const barColor=avg>=3.5?'#1D9E75':avg>=2.5?'#378ADD':avg>=1.5?'#EF9F27':'#E24B4A';
+      pulseHTML+='<div class="pulse-row"><div class="pulse-label">'+item.label+'</div><div class="pulse-bar-wrap"><div class="pulse-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div><div class="pulse-avg">'+avg+'</div></div>';
+    });
+  });
+  document.getElementById('pulseSection').innerHTML=pulseHTML;
+
+  // Comments
+  const commentFields=[
+    {key:'enps_reason',label:'eNPS Reason',cls:'cat-working'},
+    {key:'segue_answer',label:'Follow-up',cls:'cat-working'},
+    {key:'working_well',label:'Working Well',cls:'cat-working'},
+    {key:'needs_change',label:'Needs Change',cls:'cat-change'},
+    {key:'mgr_team_feedback',label:'Manager/Team',cls:'cat-mgr'},
+    {key:'culture_hr',label:'Culture/HR',cls:'cat-culture'},
+    {key:'five_year',label:'5-Year Vision',cls:'cat-5yr'}
+  ];
+
+  let comments=[];
+  data.forEach(d=>{
+    commentFields.forEach(cf=>{
+      const val=(d[cf.key]||'').toString().trim();
+      if(val&&val!=='—'&&val!=='undefined'){
+        comments.push({text:val,label:cf.label,cls:cf.cls,dept:d.department||'',quarter:d.quarter||''});
+      }
+    });
+  });
+
+  if(comments.length){
+    let cHTML='';
+    comments.forEach(c=>{
+      cHTML+='<div class="comment"><span class="comment-category '+c.cls+'">'+c.label+'</span>'+c.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'<div class="comment-meta">'+c.dept+(c.quarter?' &middot; '+c.quarter:'')+'</div></div>';
+    });
+    document.getElementById('commentsSection').innerHTML=cHTML;
+  } else {
+    document.getElementById('commentsSection').innerHTML='<div class="empty-state">No written feedback yet.</div>';
+  }
+}
+</script>
+</body>
+</html>
